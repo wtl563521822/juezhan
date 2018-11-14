@@ -68,12 +68,12 @@ end
 
 -- 设置玩家名字
 function mt:set_name(name)
-    jass.setPlayerName(self.handle, name)
+    jass.SetPlayerName(self.handle, name)
 end
 
 -- 判断是否为真人玩家
 function mt:is_player()
-    return jass.GetPlayerController(self.handle) == jass.MAP_CONTROL_USER and jass.GetPlayerSlotState(self.handle) == jass.Player_SLOT_STATE_PLAYING
+    return jass.GetPlayerController(self.handle) == jass.MAP_CONTROL_USER and jass.GetPlayerSlotState(self.handle) == jass.PLAYER_SLOT_STATE_PLAYING
 end
 
 -- 判断是否为本地玩家
@@ -84,7 +84,7 @@ end
 -- 小地图信号
 function mt:pingMinimap(x, y, time, red, green, blue, flag)
     if self == player.localplayer then
-        jass.PintMinimapEx(x, y, time or 1, red or 0, green or 255, blue or 0, not not flag)
+        jass.PingMinimapEx(x, y, time or 1, red or 0, green or 255, blue or 0, not not flag)
     end
 end
 

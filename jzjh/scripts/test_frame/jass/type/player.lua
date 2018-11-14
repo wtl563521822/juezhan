@@ -7,6 +7,7 @@
 local common_util = require 'jass.util.common_util'
 local mapcontrol = require 'jass.type.mapcontrol'
 local playerslotstate = require 'jass.type.playerslotstate'
+local playercolor = require 'jass.type.playercolor'
 
 local player = {}
 player.all_players = {}
@@ -22,13 +23,18 @@ mt.observer = false
 mt.id = 0
 mt.type = 'player'
 mt.name = '玩家1'
+mt.team = 1
+
+function mt:get_color()
+    return self.color or playercolor[0]
+end
 
 function mt:is_ally(p)
     return common_util.is_in_table(p, self.allies)
 end
 
 function mt:is_enemy(p)
-    return not is_ally(p)
+    return not self:is_ally(p)
 end
 
 function mt:is_in_force(f)
@@ -49,6 +55,10 @@ function mt:get_unit_count()
         counter = counter + 1
     end
     return counter
+end
+
+function mt:get_team()
+    return self.team
 end
 
 function mt:get_name()
@@ -81,6 +91,25 @@ function mt:set_state(state, value)
     self[state] = value
 end
 
+function mt:set_name(name)
+    self.name = name
+end
+
+function mt:get_tech_count(techid)
+    if not self.techs[techid] or not self.techs[techid].level then
+        return 0
+    end
+    return self.techs[techid].level
+end
+
+function mt:set_tech_level(techid, level)
+    self.techs[techid] = self.techs[techid] or {}
+    if self.techs[techid].level and self.techs[techid].level > level then
+        return
+    end
+    self.techs[techid].level = level
+end
+
 function mt:is_tech_researched(techid)
     if not self.techs[techid] then
         return false
@@ -102,14 +131,16 @@ function mt:get_tech_max_allowed(techid)
     return self.techs[techid].max_allowed
 end
 
-
+function mt:set_ability_available(id, flag)
+    self.ability_availability[id] = flag
+end
 
 function player:__call(i)
     return player[i]
 end
 
 function player:__tostring()
-    return self.handle_id ..':'.. self.name
+    return self.handle_id .. ':' .. self.name
 end
 
 function player.get_local()
@@ -131,9 +162,17 @@ function player.init()
         player[i] = p
         p.allies = {}
         p.techs = {}
+        p.ability_availability = {}
+        p.color = playercolor[i - 1]
         p.name = '玩家' .. i
-        p.map_control = mapcontrol[1]
-        p.slot_state = playerslotstate[2]
+        if i <= 5 then
+            p.map_control = mapcontrol[0]
+            p.team = 1
+        else
+            p.map_control = mapcontrol[1]
+            p.team = 2
+        end
+        p.slot_state = playerslotstate[1]
     end
     player.native = player[1]
 end

@@ -1742,16 +1742,17 @@ function Nv()
 	g = nil
 end
 function Ov(Pv)
-	if Pv == nil then
-		return
-	end
-	if h4 == 0 then
-		f4 = CreateTrigger()
-		TriggerAddAction(f4, Lv)
-		Nv()
-	end
-	g4[h4] = Pv
-	h4 = h4 + 1
+    -- FIXME
+	--if Pv == nil then
+	--	return
+	--end
+	--if h4 == 0 then
+	--	f4 = CreateTrigger()
+	--	TriggerAddAction(f4, Lv)
+	--	Nv()
+	--end
+	--g4[h4] = Pv
+	--h4 = h4 + 1
 end
 function Qv()
 	local i = 0
@@ -1777,7 +1778,7 @@ function UnitHaveItem(u, j)
 	local i = 0
 	if j ~= 0 then
 		for _ in _loop_() do
-			if GetItemTypeId(UnitItemInSlot(u, i)) == j then
+			if UnitItemInSlot(u, i) and GetItemTypeId(UnitItemInSlot(u, i)) == j then
 				return true
 			end
 			i = i + 1
@@ -3790,6 +3791,7 @@ function main()
     -- naji测试
     require 'util.najitest'
 
+    et.denomination.create()
     et.unit.init()
     environment.init() -- 创建单位并初始化环境
     unit_creation.init()

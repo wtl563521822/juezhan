@@ -952,6 +952,9 @@ function Va()
 	local p = GetOwningPlayer(u)
 	local i = 1 + GetPlayerId(p)
 	local r = (1 - RMinBJ(udg_shanghaixishou[i], 0.8)) * GetEventDamage()
+	if not udg_hero[i] then
+		return
+	end
 	SetWidgetLife(udg_hero[i], GetUnitState(udg_hero[i], UNIT_STATE_LIFE) + RMinBJ(udg_shanghaixishou[i], 0.8) * GetEventDamage())
 	if UnitHasBuffBJ(GetTriggerUnit(), 1110454340) and GetUnitAbilityLevel(GetTriggerUnit(), 1093678930) ~= 0 then
 		SetWidgetLife(udg_hero[i], GetUnitState(udg_hero[i], UNIT_STATE_LIFE) + 0.3 * GetEventDamage())
@@ -2778,9 +2781,9 @@ function GameLogic_Trigger()
 	t = nil
 end
 
---require 'map.系统.装备'
---require 'map.系统.套装'
---require 'map.系统.镶嵌'
+require 'map.系统.装备'
+require 'map.系统.套装'
+require 'map.系统.镶嵌'
 
 function Equipment_Trigger()
 	require('map.rules.基地保护')

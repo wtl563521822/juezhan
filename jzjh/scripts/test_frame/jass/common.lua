@@ -940,7 +940,8 @@ end
 
 --native          SetUnitState        takes unit whichUnit, unitstate whichUnitState, real newVal returns nothing
 function jass.SetUnitState(u, state, val)
-    -- TODO
+    log.info('单位', u, '的状态', state.name, '设置为', val)
+    u:set_unit_state(state, val)
 end
 
 --native          SetUnitX            takes unit whichUnit, real newX returns nothing
@@ -950,6 +951,7 @@ function jass.SetUnitX(u, x)
     end
     assert(u.type == 'unit', 'u参数类型错误')
     assert(type(x) == 'number', 'x参数类型错误')
+    log.debug('设置单位', u, '的x坐标为', x)
     u:set_x(x)
 end
 
@@ -960,6 +962,7 @@ function jass.SetUnitY(u, y)
     end
     assert(u.type == 'unit', 'u参数类型错误')
     assert(type(y) == 'number', 'y参数类型错误')
+    log.debug('设置单位', u, '的y坐标为', y)
     u:set_y(y)
 end
 
@@ -1287,7 +1290,7 @@ end
 
 --constant native GetUnitLevel        takes unit whichUnit returns integer
 function jass.GetUnitLevel(u)
-    return h:get_level()
+    return u:get_level()
 end
 
 --native          GetHeroProperName   takes unit whichHero returns string
@@ -1400,12 +1403,23 @@ end
 --native          GetUnitPointValueByType takes integer unitType returns integer
 
 --native          UnitAddItem             takes unit whichUnit, item whichItem returns boolean
+function jass.UnitAddItem(u, it)
+    u:add_item(it)
+end
 --native          UnitAddItemById         takes unit whichUnit, integer itemId returns item
 --native          UnitAddItemToSlotById   takes unit whichUnit, integer itemId, integer itemSlot returns boolean
 --native          UnitRemoveItem          takes unit whichUnit, item whichItem returns nothing
 --native          UnitRemoveItemFromSlot  takes unit whichUnit, integer itemSlot returns item
 --native          UnitHasItem             takes unit whichUnit, item whichItem returns boolean
+function jass.UnitHasItem(u, it)
+    return u:has_item(it)
+end
+
 --native          UnitItemInSlot          takes unit whichUnit, integer itemSlot returns item
+function jass.UnitItemInSlot(u, i)
+    return u:get_item_in_slot(i)
+end
+
 --native          UnitInventorySize       takes unit whichUnit returns integer
 --native          UnitDropItemPoint       takes unit whichUnit, item whichItem, real x, real y returns boolean
 --native          UnitDropItemSlot        takes unit whichUnit, item whichItem, integer slot returns boolean
@@ -1478,7 +1492,15 @@ end
 --constant native IsUnitInForce       takes unit whichUnit, force whichForce returns boolean
 --constant native IsUnitOwnedByPlayer takes unit whichUnit, player whichPlayer returns boolean
 --constant native IsUnitAlly          takes unit whichUnit, player whichPlayer returns boolean
+function jass.IsUnitAlly(u, p)
+    return jass.IsPlayerAlly(jass.GetOwningPlayer(u), p)
+end
+
 --constant native IsUnitEnemy         takes unit whichUnit, player whichPlayer returns boolean
+function jass.IsUnitEnemy(u, p)
+    return jass.IsPlayerEnemy(jass.GetOwningPlayer(u), p)
+end
+
 --constant native IsUnitVisible       takes unit whichUnit, player whichPlayer returns boolean
 --constant native IsUnitDetected      takes unit whichUnit, player whichPlayer returns boolean
 --constant native IsUnitInvisible     takes unit whichUnit, player whichPlayer returns boolean
@@ -1531,6 +1553,13 @@ end
 --native UnitIsSleeping               takes unit whichUnit returns boolean
 --native UnitWakeUp                   takes unit whichUnit returns nothing
 --native UnitApplyTimedLife           takes unit whichUnit, integer buffId, real duration returns nothing
+function jass.UnitApplyTimedLife(u, buffId, duration)
+    log.debug('单位', u, '为有时限的单位，buffId为', buffId, '，时限为', duration)
+    jass.TimerStart(jass.CreateTimer(), duration, false, function()
+        u:remove()
+    end)
+end
+
 --native UnitIgnoreAlarm              takes unit whichUnit, boolean flag returns boolean
 --native UnitIgnoreAlarmToggled       takes unit whichUnit returns boolean
 --native UnitResetCooldown            takes unit whichUnit returns nothing
@@ -1669,6 +1698,10 @@ function jass.GetPlayerTechMaxAllowed(p, techid)
 end
 --constant native AddPlayerTechResearched takes player whichPlayer, integer techid, integer levels returns nothing
 --constant native SetPlayerTechResearched takes player whichPlayer, integer techid, integer setToLevel returns nothing
+function jass.SetPlayerTechResearched(p, techid, level)
+    return p:set_tech_level(techid, level)
+end
+
 --constant native GetPlayerTechResearched takes player whichPlayer, integer techid, boolean specificonly returns boolean
 function jass.GetPlayerTechResearched(p, techid, specificonly)
     local result = p:is_tech_researched(techid)
@@ -1676,9 +1709,17 @@ function jass.GetPlayerTechResearched(p, techid, specificonly)
     return result
 end
 --constant native GetPlayerTechCount      takes player whichPlayer, integer techid, boolean specificonly returns integer
+function jass.GetPlayerTechCount(p, techid, specificonly)
+    return p:get_tech_count(techid)
+end
+
 --native SetPlayerUnitsOwner takes player whichPlayer, integer newOwner returns nothing
 --native CripplePlayer takes player whichPlayer, force toWhichPlayers, boolean flag returns nothing
 --native SetPlayerAbilityAvailable        takes player whichPlayer, integer abilid, boolean avail returns nothing
+function jass.SetPlayerAbilityAvailable(p, abilid, avail)
+    p:set_ability_available(abilid, avail)
+end
+
 --native SetPlayerState   takes player whichPlayer, playerstate whichPlayerState, integer value returns nothing
 function jass.SetPlayerState(p, whichPlayerState, value)
     log.info(p:get_name() .. '的属性' .. whichPlayerState.name .. '设置为：' .. value)
@@ -1909,8 +1950,15 @@ end
 --native SetPlayerRaceSelectable  takes player whichPlayer, boolean value returns nothing
 --native SetPlayerController      takes player whichPlayer, mapcontrol controlType returns nothing
 --native SetPlayerName            takes player whichPlayer, string name returns nothing
+function jass.SetPlayerName(p, name)
+    p:set_name(name)
+end
 --native SetPlayerOnScoreScreen   takes player whichPlayer, boolean flag returns nothing
 --native GetPlayerTeam            takes player whichPlayer returns integer
+function jass.GetPlayerTeam(p)
+    return p:get_team()
+end
+
 --native GetPlayerStartLocation   takes player whichPlayer returns integer
 --native GetPlayerColor           takes player whichPlayer returns playercolor
 --native GetPlayerSelectable      takes player whichPlayer returns boolean
@@ -1920,7 +1968,7 @@ function jass.GetPlayerController(p)
 end
 
 --native GetPlayerSlotState       takes player whichPlayer returns playerslotstate
-function jass.GetPlayerSlotState()
+function jass.GetPlayerSlotState(p)
     return p:get_slot_state()
 end
 
@@ -2099,7 +2147,7 @@ end
 
 --native FirstOfGroup             takes group whichGroup returns unit
 function jass.FirstOfGroup(g)
-    return g:get_first()
+    return g:get_first() or 0
 end
 
 --//============================================================================
@@ -2377,6 +2425,9 @@ end
 
 --native Condition        takes code func returns conditionfunc
 function jass.Condition(fun)
+    if not fun then
+        log.error('trigger的Condition为nil')
+    end
     return boolexpr.create(fun)
 end
 
@@ -3021,7 +3072,10 @@ end
 --native          IsItemIdSellable takes integer itemId returns boolean
 --native          IsItemIdPawnable takes integer itemId returns boolean
 --native          EnumItemsInRect     takes rect r, boolexpr filter, code actionFunc returns nothing
---native          GetItemLevel    takes item whichItem returns integer
+--native          GetItemLevel    takes item whichItem returns
+function jass.GetItemLevel(it)
+    return it:get_level()
+end
 --native          GetItemType     takes item whichItem returns itemtype
 function jass.GetItemType(it)
     return it:get_type()
@@ -3032,7 +3086,13 @@ end
 --native          GetItemCharges  takes item whichItem returns integer
 --native          SetItemCharges  takes item whichItem, integer charges returns nothing
 --native          GetItemUserData takes item whichItem returns integer
+function jass.GetItemUserData(it)
+    return it:get_user_data()
+end
 --native          SetItemUserData takes item whichItem, integer data returns nothing
+function jass.SetItemUserData(it, data)
+    it:set_user_data(data)
+end
 
 --// Fog of War API
 --native  SetFogStateRect      takes player forWhichPlayer, fogstate whichState, rect where, boolean useSharedVision returns nothing
@@ -3308,171 +3368,171 @@ end
 
 --native  LoadInteger					takes hashtable table, integer parentKey, integer childKey returns integer
 function jass.LoadInteger(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'integer')
+    return ht:load(parentKey, childKey, 'integer') or 0
 end
 --native  LoadReal					takes hashtable table, integer parentKey, integer childKey returns real
 function jass.LoadReal(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'real')
+    return ht:load(parentKey, childKey, 'real') or 0
 end
 --native  LoadBoolean				    takes hashtable table, integer parentKey, integer childKey returns boolean
 function jass.LoadBoolean(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'boolean')
+    return ht:load(parentKey, childKey, 'boolean') or false
 end
 --native  LoadStr 					takes hashtable table, integer parentKey, integer childKey returns string
 function jass.LoadStr(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'str')
+    return ht:load(parentKey, childKey, 'str') or ''
 end
 --native  LoadPlayerHandle			takes hashtable table, integer parentKey, integer childKey returns player
 function jass.LoadPlayerHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'player')
+    return ht:load(parentKey, childKey, 'player') or nil
 end
 --native  LoadWidgetHandle			takes hashtable table, integer parentKey, integer childKey returns widget
 function jass.LoadWidgetHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'widget')
+    return ht:load(parentKey, childKey, 'widget') or nil
 end
 --native  LoadDestructableHandle		takes hashtable table, integer parentKey, integer childKey returns destructable
 function jass.LoadDestructableHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'destructable')
+    return ht:load(parentKey, childKey, 'destructable') or nil
 end
 --native  LoadItemHandle				takes hashtable table, integer parentKey, integer childKey returns item
 function jass.LoadItemHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'item')
+    return ht:load(parentKey, childKey, 'item') or nil
 end
 --native  LoadUnitHandle				takes hashtable table, integer parentKey, integer childKey returns unit
 function jass.LoadUnitHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'unit')
+    return ht:load(parentKey, childKey, 'unit') or nil
 end
 --native  LoadAbilityHandle			takes hashtable table, integer parentKey, integer childKey returns ability
 function jass.LoadAbilityHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'ability')
+    return ht:load(parentKey, childKey, 'ability') or nil
 end
 --native  LoadTimerHandle				takes hashtable table, integer parentKey, integer childKey returns timer
 function jass.LoadTimerHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'timer')
+    return ht:load(parentKey, childKey, 'timer') or nil
 end
 --native  LoadTriggerHandle			takes hashtable table, integer parentKey, integer childKey returns trigger
 function jass.LoadTriggerHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'trigger')
+    return ht:load(parentKey, childKey, 'trigger') or nil
 end
 --native  LoadTriggerConditionHandle	takes hashtable table, integer parentKey, integer childKey returns triggercondition
 function jass.LoadTriggerConditionHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'triggercondition')
+    return ht:load(parentKey, childKey, 'triggercondition') or nil
 end
 --native  LoadTriggerActionHandle		takes hashtable table, integer parentKey, integer childKey returns triggeraction
 function jass.LoadTriggerActionHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'triggeraction')
+    return ht:load(parentKey, childKey, 'triggeraction') or nil
 end
 --native  LoadTriggerEventHandle		takes hashtable table, integer parentKey, integer childKey returns event
 function jass.LoadTriggerEventHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'triggerevent')
+    return ht:load(parentKey, childKey, 'triggerevent') or nil
 end
 --native  LoadForceHandle				takes hashtable table, integer parentKey, integer childKey returns force
 function jass.LoadForceHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'force')
+    return ht:load(parentKey, childKey, 'force') or nil
 end
 --native  LoadGroupHandle				takes hashtable table, integer parentKey, integer childKey returns group
 function jass.LoadGroupHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'group')
+    return ht:load(parentKey, childKey, 'group') or nil
 end
 --native  LoadLocationHandle			takes hashtable table, integer parentKey, integer childKey returns location
 function jass.LoadLocationHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'cation')
+    return ht:load(parentKey, childKey, 'cation') or nil
 end
 --native  LoadRectHandle				takes hashtable table, integer parentKey, integer childKey returns rect
 function jass.LoadRectHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'rect')
+    return ht:load(parentKey, childKey, 'rect') or nil
 end
 --native  LoadBooleanExprHandle		takes hashtable table, integer parentKey, integer childKey returns boolexpr
 function jass.LoadBooleanExprHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'booleanexpr')
+    return ht:load(parentKey, childKey, 'booleanexpr') or nil
 end
 --native  LoadSoundHandle				takes hashtable table, integer parentKey, integer childKey returns sound
 function jass.LoadSoundHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'sound')
+    return ht:load(parentKey, childKey, 'sound') or nil
 end
 --native  LoadEffectHandle			takes hashtable table, integer parentKey, integer childKey returns effect
 function jass.LoadEffectHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'effect')
+    return ht:load(parentKey, childKey, 'effect') or nil
 end
 --native  LoadUnitPoolHandle			takes hashtable table, integer parentKey, integer childKey returns unitpool
 function jass.LoadUnitPoolHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'unitpool')
+    return ht:load(parentKey, childKey, 'unitpool') or nil
 end
 --native  LoadItemPoolHandle			takes hashtable table, integer parentKey, integer childKey returns itempool
 function jass.LoadItemPoolHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'itempool')
+    return ht:load(parentKey, childKey, 'itempool') or nil
 end
 --native  LoadQuestHandle				takes hashtable table, integer parentKey, integer childKey returns quest
 function jass.LoadQuestHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'quest')
+    return ht:load(parentKey, childKey, 'quest') or nil
 end
 --native  LoadQuestItemHandle			takes hashtable table, integer parentKey, integer childKey returns questitem
 function jass.LoadQuestItemHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'questitem')
+    return ht:load(parentKey, childKey, 'questitem') or nil
 end
 --native  LoadDefeatConditionHandle	takes hashtable table, integer parentKey, integer childKey returns defeatcondition
 function jass.LoadDefeatConditionHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'defeatcondition')
+    return ht:load(parentKey, childKey, 'defeatcondition') or nil
 end
 --native  LoadTimerDialogHandle		takes hashtable table, integer parentKey, integer childKey returns timerdialog
 function jass.LoadTimerDialogHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'timerdialog')
+    return ht:load(parentKey, childKey, 'timerdialog') or nil
 end
 --native  LoadLeaderboardHandle		takes hashtable table, integer parentKey, integer childKey returns leaderboard
 function jass.LoadLeaderboardHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'leaderboard')
+    return ht:load(parentKey, childKey, 'leaderboard') or nil
 end
 --native  LoadMultiboardHandle		takes hashtable table, integer parentKey, integer childKey returns multiboard
 function jass.LoadMultiboardHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'multiboard')
+    return ht:load(parentKey, childKey, 'multiboard') or nil
 end
 --native  LoadMultiboardItemHandle	takes hashtable table, integer parentKey, integer childKey returns multiboarditem
 function jass.LoadMultiboardItemHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'multiboarditem')
+    return ht:load(parentKey, childKey, 'multiboarditem') or nil
 end
 --native  LoadTrackableHandle			takes hashtable table, integer parentKey, integer childKey returns trackable
 function jass.LoadTrackableHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'trackable')
+    return ht:load(parentKey, childKey, 'trackable') or nil
 end
 --native  LoadDialogHandle			takes hashtable table, integer parentKey, integer childKey returns dialog
 function jass.LoadDialogHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'dialog')
+    return ht:load(parentKey, childKey, 'dialog') or nil
 end
 --native  LoadButtonHandle			takes hashtable table, integer parentKey, integer childKey returns button
 function jass.LoadButtonHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'button')
+    return ht:load(parentKey, childKey, 'button') or nil
 end
 --native  LoadTextTagHandle			takes hashtable table, integer parentKey, integer childKey returns texttag
 function jass.LoadTextTagHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'texttag')
+    return ht:load(parentKey, childKey, 'texttag') or nil
 end
 --native  LoadLightningHandle			takes hashtable table, integer parentKey, integer childKey returns lightning
 function jass.LoadLightningHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'lightning')
+    return ht:load(parentKey, childKey, 'lightning') or nil
 end
 --native  LoadImageHandle				takes hashtable table, integer parentKey, integer childKey returns image
 function jass.LoadImageHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'image')
+    return ht:load(parentKey, childKey, 'image') or nil
 end
 --native  LoadUbersplatHandle			takes hashtable table, integer parentKey, integer childKey returns ubersplat
 function jass.LoadUbersplatHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'ubersplat')
+    return ht:load(parentKey, childKey, 'ubersplat') or nil
 end
 --native  LoadRegionHandle			takes hashtable table, integer parentKey, integer childKey returns region
 function jass.LoadRegionHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'region')
+    return ht:load(parentKey, childKey, 'region') or nil
 end
 --native  LoadFogStateHandle			takes hashtable table, integer parentKey, integer childKey returns fogstate
 function jass.LoadFogStateHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'fogstate')
+    return ht:load(parentKey, childKey, 'fogstate') or nil
 end
 --native  LoadFogModifierHandle		takes hashtable table, integer parentKey, integer childKey returns fogmodifier
 function jass.LoadFogModifierHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'fogmodifier')
+    return ht:load(parentKey, childKey, 'fogmodifier') or nil
 end
 --native  LoadHashtableHandle			takes hashtable table, integer parentKey, integer childKey returns hashtable
 function jass.LoadHashtableHandle(ht, parentKey, childKey)
-    return ht:load(parentKey, childKey, 'hashtable')
+    return ht:load(parentKey, childKey, 'hashtable') or nil
 end
 
 --native  HaveSavedInteger					takes hashtable table, integer parentKey, integer childKey returns boolean
@@ -3544,7 +3604,9 @@ end
 
 --native GetRandomReal takes real lowBound, real highBound returns real
 function jass.GetRandomReal(lowBound, highBound)
-    return lowBound + math.random() * (highBound - lowBound)
+    local r = lowBound + math.random() * (highBound - lowBound)
+    log.debug('取随机实数，范围为：', lowBound, '~', highBound, '，结果为：', r)
+    return r
 end
 
 --native CreateUnitPool           takes nothing returns unitpool
@@ -3600,11 +3662,14 @@ end
 
 --native DisplayTimedTextToPlayer     takes player toPlayer, real x, real y, real duration, string message returns nothing
 function jass.DisplayTimedTextToPlayer(p, x, y, duration, message)
-    log.info('向用户'..p:get_name()..'输出文本，位置为：', x, ',', y, '持续时间为：', duration, '消息为：\n', message)
+    log.info('向用户' .. p:get_name() .. '输出文本，位置为：', x, ',', y, '持续时间为：', duration, '消息为：\n', message)
 end
 
 --native DisplayTimedTextFromPlayer   takes player toPlayer, real x, real y, real duration, string message returns nothing
 --native ClearTextMessages            takes nothing returns nothing
+function jass.ClearTextMessages()
+    log.info('清空所有用户的输出文本')
+end
 --native SetDayNightModels            takes string terrainDNCFile, string unitDNCFile returns nothing
 function jass.SetDayNightModels(terrainDNCFile, unitDNCFile)
     log.info('设置环境光照和单位光照：', terrainDNCFile, unitDNCFile)
@@ -3627,10 +3692,14 @@ end
 --native AddIndicator                 takes widget whichWidget, integer red, integer green, integer blue, integer alpha returns nothing
 --native PingMinimap                  takes real x, real y, real duration returns nothing
 function jass.PingMinimap(x, y, duration)
-    log.info('向小地图发送信号，位置为：', x, y, '，持续时间为：', duration)
+    log.info('向所有玩家小地图发送信号，位置为：', x, y, '，持续时间为：', duration)
 end
 
 --native PingMinimapEx                takes real x, real y, real duration, integer red, integer green, integer blue, boolean extraEffects returns nothing
+function jass.PingMinimapEx(x, y, duration, red, green, blue, extraEffects)
+    log.info('向所有玩家小地图发送信号，位置为：', x, y, '，颜色为', red, green, blue, '，持续时间为：', duration, '，是否有额外特效', extraEffects)
+end
+
 --native EnableOcclusion              takes boolean flag returns nothing
 --native SetIntroShotText             takes string introText returns nothing
 --native SetIntroShotModel            takes string introModelPath returns nothing
@@ -3797,7 +3866,7 @@ end
 --native SetCameraRotateMode          takes real x, real y, real radiansToSweep, real duration returns nothing
 --native SetCameraField               takes camerafield whichField, real value, real duration returns nothing
 function jass.SetCameraField(whichField, value, duration)
-    log.debug('将摄像机镜头属性'..whichField.name..'设置为:', value, '过渡时间为：', duration)
+    log.debug('将摄像机镜头属性' .. whichField.name .. '设置为:', value, '过渡时间为：', duration)
     variables[whichField] = value
 end
 
@@ -4011,7 +4080,9 @@ end
 
 --native DestroyEffect                takes effect whichEffect returns nothing
 function jass.DestroyEffect(e)
-    e:destroy()
+    if e then
+        e:destroy()
+    end
 end
 
 --native AddSpellEffect               takes string abilityString, effecttype t, real x, real y returns effect

@@ -1,5 +1,6 @@
 local lni = require 'lni.lni-loader'
 local storm = require 'jass.storm'
+require 'war3.id'
 
 et.lni = {}
 
@@ -17,4 +18,22 @@ end
 function et.lni_loader(name)
 	et.lni[name] = lni:packager(name, storm.load)
 	log.info('读取lni文件'..name)
+end
+
+function et.extend_lni(tab)
+	for k, v in pairs(tab) do
+        v.name = k
+    end
+    local temp = {}
+    for k, v in pairs(tab) do
+        if v.item_id then
+            if type(v.item_id) then
+                v.item_id = base.string2id(v.item_id)
+            end
+            temp[v.item_id] = v
+        end
+    end
+    for k, v in pairs(temp) do
+        tab[k] = temp[k]
+    end
 end

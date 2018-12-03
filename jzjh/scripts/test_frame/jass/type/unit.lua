@@ -12,6 +12,7 @@ local unit = {}
 unit.all_units = {}
 unit.removed_units = {}
 
+--- @class j_unit
 local mt = {}
 unit.__index = mt
 
@@ -95,6 +96,12 @@ mt.skill_points = 0
 mt.selected = false
 
 mt.point_value = 100
+
+mt.sleeping = false
+
+function mt:wakeup()
+    self.sleeping = false
+end
 
 function mt:die()
     self.status = 'dead'

@@ -1,5 +1,6 @@
 
 
+-- TODO 将kongfu改造成lni文件读取
 kongfu = {}
 setmetatable(kongfu,kongfu)
 et.kongfu = kongfu
@@ -28,7 +29,7 @@ mt.conditions = {
 
 function CunWuGong(num, id1, id2, s, dp1, fy1, gg1, jm1, wx1, ys1)
 	kongfu[num] = {}
-	kongfu[num].id = num
+	kongfu[num].num = num
 	kongfu[num].itemid = id1
 	kongfu[num].abilityid = id2
 	kongfu[num].type = s
@@ -40,6 +41,7 @@ function CunWuGong(num, id1, id2, s, dp1, fy1, gg1, jm1, wx1, ys1)
 		['福缘'] = fy1,
 		['胆魄'] = dp1,
 	}
+	kongfu[id1] = kongfu[num]
 end
 
 function kongfu.init()
@@ -111,7 +113,15 @@ function Cuns()
 	et.lni_loader('helmet')	
 	et.lni_loader('shoe')	
 	et.lni_loader('accessory')	
-	et.lni_loader('deputy')	
+	et.lni_loader('deputy')
+	et.lni.equipment = {}
+	table.add_all(et.lni.equipment, et.lni.weapon)
+	table.add_all(et.lni.equipment, et.lni.clothes)
+	table.add_all(et.lni.equipment, et.lni.helmet)
+	table.add_all(et.lni.equipment, et.lni.shoe)
+	table.add_all(et.lni.equipment, et.lni.accessory)
+	table.add_all(et.lni.equipment, et.lni.deputy)
+	et.extend_lni(et.lni.equipment)
 end
 
 Cuns()

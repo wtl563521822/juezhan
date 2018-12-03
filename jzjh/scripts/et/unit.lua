@@ -17,7 +17,9 @@ function unit:__tostring()
 end
 
 --结构
+--- @class unit
 local mt = {}
+
 unit.__index = mt
 
 --类型
@@ -30,6 +32,7 @@ mt.unit_type = 'unit'
 mt.handle = 0
 
 --所有者
+--- @type player
 mt.owner = nil
 
 --存活
@@ -68,6 +71,7 @@ mt.proc = 1
 mt.class = ''
 
 --获得所有者
+--- @return player
 function mt:get_owner()
     return self.owner
 end
@@ -116,6 +120,10 @@ function mt:get_type_id()
     return self.id
 end
 
+function mt:get_point_value()
+    return jass.GetUnitPointValue(self.handle)
+end
+
 function mt:is_type(type)
     return self.unit_type == type
 end
@@ -156,6 +164,7 @@ end
 --	数据项名称
 --	[如果未找到,返回的默认值]
 function mt:get_slk(name, default)
+
     local unit_data = slk.unit[self.id]
     if not unit_data then
         log.error('单位数据未找到', self.id)
@@ -294,7 +303,7 @@ end
 --是否存活
 --是否存活
 function mt:is_alive()
-    return not self.removed and self._is_alive
+    return not self.removed and self._is_alive and self:get_life() > 0
 end
 
 --队伍
@@ -320,6 +329,7 @@ end
 mt._last_point = nil
 
 --获取位置
+--- @return point
 function mt:get_point()
     if self._dummy_point then
         return self._dummy_point
@@ -409,6 +419,10 @@ end
 --高度
 mt.high = 0
 
+function mt:get_fly_height()
+    return jass.GetUnitFlyHeight(self.handle)
+end
+
 --获取高度
 --	[是否是绝对高度(地面高度+飞行高度)]
 function mt:get_high(b)
@@ -463,20 +477,32 @@ function mt:set_facing(angle, instant)
     end
 end
 
+function mt:get_mana()
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_MANA)
+end
+
+function mt:get_max_mana()
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA)
+end
+
+function mt:set_mana(mana)
+    jass.SetUnitState(self.handle, jass.UNIT_STATE_MANA, mana)
+end
+
 function mt:get_max_life()
-    return jass.GetUnitState(self.handle, UNIT_STATE_MAX_LIFE)
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE)
 end
 
 function mt:get_life()
-    return jass.GetUnitState(self.handle, UNIT_STATE_LIFE)
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_LIFE)
 end
 
 function mt:set_life(life)
-    jass.SetUnitState(self.handle, UNIT_STATE_LIFE, life)
+    jass.SetUnitState(self.handle, jass.UNIT_STATE_LIFE, life)
 end
 
 function mt:get_life_percent()
-    return jass.GetUnitState(self.handle, UNIT_STATE_LIFE) / jass.GetUnitState(self.handle, UNIT_STATE_MAX_LIFE) * 100
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_LIFE) / jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE) * 100
 end
 
 function mt:set_life_percent(percent)
@@ -594,6 +620,11 @@ function mt:get_level()
     return jass.GetUnitLevel(self.handle)
 end
 
+-- 增加经验
+function mt:add_exp(exp, flag)
+    jass.AddHeroXP(self.handle, exp, flag)
+end
+
 --技能(War3)
 --添加技能
 --	技能id
@@ -644,6 +675,10 @@ end
 
 function mt:has_ability(ability_id)
     return self:get_ability_level(ability_id) >= 1
+end
+
+function mt:has_buff(buff_id)
+    return self:has_ability(buff_id)
 end
 
 function mt:has_all_abilities(...)
@@ -710,8 +745,6 @@ function mt:makePermanent(ability_id)
     jass.UnitMakeAbilityPermanent(self.handle, true, ability_id)
 end
 
-
-
 local id2order = setmetatable({}, { __index = function(self, k)
     log.info('OrderId2String', k)
     local order = jass.OrderId2String(k)
@@ -736,10 +769,9 @@ mt.script_order = false
 function mt:issue_order(order, target)
     local res
     self.script_order = true
-
     -- 如果传的是id，转为order
     if type(order) == 'number' then
-        order = id2order(order)
+        order = id2order[order]
     end
 
     if not target then
@@ -1068,6 +1100,7 @@ function mt:set_lifetime(time)
 end
 
 --转换handle为单位
+--- @return unit
 function unit.j_unit(handle)
     if not handle or handle == 0 then
         return
@@ -1082,6 +1115,7 @@ function unit.j_unit(handle)
     return u
 end
 
+--- @return unit
 function unit:__call(handle)
     return self.j_unit(handle)
 end
@@ -1222,7 +1256,7 @@ function player.__index:create_unit(id, where, face)
     end
 
     ignore_flag = true
-    local handle = jass.CreateUnit(self.handle, j_id, x, y, face or 0)
+    local handle = jass.CreateUnit(self.handle, j_id, x, y, face or 270)
     dbg.handle_ref(handle)
     ignore_flag = false
     local u = unit.init_unit(handle, self)
@@ -1274,13 +1308,84 @@ function mt:set_invulnerable(time)
     end)
 end
 
-function mt:add_item(id)
-    if type(id) == 'string' then
-        id = base.string2id(id)
+--- @return number
+function mt:get_str()
+    return jass.GetHeroStr(self.handle, true)
+end
+
+--- @param str number
+function mt:set_str(str)
+    jass.SetHeroStr(self.handle, str, true)
+end
+
+--- @return number
+function mt:get_agi()
+    return jass.GetHeroAgi(self.handle, true)
+end
+
+--- @param agi number
+function mt:set_agi(agi)
+    jass.SetHeroAgi(self.handle, agi, true)
+end
+
+--- @return number
+function mt:get_int()
+    return jass.GetHeroInt(self.handle, true)
+end
+
+--- @param int number
+function mt:set_int(int)
+    jass.SetHeroInt(self.handle, int, true)
+end
+
+--- @param i number 第几格物品，从1开始
+--- @return item
+function mt:get_item_in_slot(i)
+    return et.item:get(jass.UnitItemInSlot(self.handle, i - 1))
+end
+
+--- @param id number 物品ID
+--- @return item
+function mt:fetch_item(id)
+    for i = 1, 6 do
+        local it = self:get_item_in_slot(i)
+        if it:get_id() == id then
+            return it
+        end
     end
-    local it = jass.CreateItem(id, self:getX(), self:getY())
-    jass.UnitAddItem(self.handle, it)
+    return nil
+end
+
+--- @param id number 物品ID
+--- @return boolean
+function mt:has_item(id)
+    if id ~= 0 then
+        for i = 1, 6 do
+            if self:get_item_in_slot(i) and self:get_item_in_slot(i):get_id() == id then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+--- @param item item|string|number
+--- @return item
+function mt:add_item(item)
+    local it = item
+    if type(item) == 'string' then
+        item = base.string2id(item)
+    end
+    if type(item) == 'number' then
+        it = et.item:new(item, self:getX(), self:getY())
+    end
+    jass.UnitAddItem(self.handle, it.handle)
     return it
+end
+
+--- @param item
+function mt:remove_item(it)
+    jass.UnitRemoveItem(self.handle, it.handle)
 end
 
 function mt:update()
@@ -1395,9 +1500,9 @@ function unit.register_jass_triggers()
     end
 
     j_trg = war3.CreateTrigger(function()
-        local item = jass.GetManipulatedItem()
+        local item = et.item:get(jass.GetManipulatedItem())
         local u = unit(jass.GetTriggerUnit())
-        unit:event_notify('单位-捡起物品', u, item)
+        u:event_notify('单位-捡起物品', u, item)
     end)
 
     for i = 1, 16 do
@@ -1405,14 +1510,47 @@ function unit.register_jass_triggers()
     end
 
     j_trg = war3.CreateTrigger(function()
-        local item = jass.GetManipulatedItem()
+        local item = et.item:get(jass.GetManipulatedItem())
         local u = unit(jass.GetTriggerUnit())
-        unit:event_notify('单位-使用物品', u, item)
+        u:event_notify('单位-使用物品', u, item)
     end)
 
     for i = 1, 16 do
         jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_USE_ITEM, nil)
     end
+
+    j_trg = war3.CreateTrigger(function()
+        local item = et.item:get(jass.GetManipulatedItem())
+        local u = unit(jass.GetTriggerUnit())
+        u:event_notify('单位-扔下物品', u, item)
+    end)
+
+    for i = 1, 16 do
+        jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_DROP_ITEM, nil)
+    end
+
+    j_trg = war3.CreateTrigger(function()
+        local u = unit(jass.GetTriggerUnit())
+        local id = jass.GetSpellAbilityId()
+        local target = jass.GetSpellTargetUnit() or jass.GetSpellTargetItem() or et.point(jass.GetSpellTargetX(), jass.GetSpellTargetY())
+        u:event_notify('单位-技能生效', u, id, target)
+    end)
+
+    for i = 1, 16 do
+        jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_EFFECT, nil)
+    end
+
+    j_trg = war3.CreateTrigger(function()
+        local u = unit(jass.GetTriggerUnit())
+        local id = jass.GetSpellAbilityId()
+        local target = jass.GetSpellTargetUnit() or jass.GetSpellTargetItem() or et.point(jass.GetSpellTargetX(), jass.GetSpellTargetY())
+        u:event_notify('单位-施放技能', u, id, target)
+    end)
+
+    for i = 1, 16 do
+        jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_CAST, nil)
+    end
+
 
 end
 

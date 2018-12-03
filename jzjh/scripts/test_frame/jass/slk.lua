@@ -7,6 +7,7 @@
 
 local config = require 'jass.config'
 local SCRIPT_PATH = config.SCRIPT_PATH
+local base = require 'jass.util.id'
 
 local slk = {}
 local lni = require 'jass.util.lni-loader'
@@ -31,7 +32,7 @@ end
 local function init()
     lni:set_marco('TableSearcher', '$MapPath$table\\')
     lni:set_marco('MapPath', SCRIPT_PATH)
-    --lni_loader('ability')
+    lni_loader('ability')
     lni_loader('buff')
     lni_loader('destructable')
     lni_loader('doodad')
@@ -39,7 +40,19 @@ local function init()
     lni_loader('item')
     lni_loader('misc')
     lni_loader('unit')
-    --lni_loader('upgrade')
+
+    local file = io.open('F:\\personal\\heroaltar\\juezhan\\jzjh\\scripts\\map\\static\\units.lua', 'r')
+    local dest = io.open('dest.ini', 'w+')
+    for line in file:lines() do
+        if line:find("'%w%w%w%w'") then
+            local start, _end, str = line:find("'(%w%w%w%w)'")
+            -- print(slk.unit[str].Name)
+            dest:write(line, '--' .. (slk.unit[str].Name or slk.unit[slk.unit[str]._parent].Name or ''), '\n')
+        else
+            dest:write(line, '\n')
+        end
+
+    end
 
 end
 init()

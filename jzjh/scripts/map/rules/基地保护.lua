@@ -14,7 +14,7 @@ local function init()
         if target == udg_ZhengPaiWL then
             if target:get_life_percent() <= 25 and not udg_yunyangxianshen then
                 udg_yunyangxianshen = true
-                u = et.player[6]:create_unit(1214409837, target:get_point() + { 0, 200 }, 90)
+                local u = et.player[6]:create_unit(1214409837, target:get_point() + { 0, 200 }, 90)
                 force.send_message("|cFFFF6600基地严重受创，云杨现身相助")
                 u:set_lifetime(20.0)
                 target:add_ability(1098282348)
@@ -45,12 +45,12 @@ local function init()
 
     et.game:event '单位-捡起物品'(function(self, u, item)
         -- 购买基地无敌
-        if jass.GetItemTypeId(item) == 1227896664 then
+        if item:get_id() == 1227896664 then
             force.send_message("|cff00ff33在正义之士的庇护下，武林暂时无敌了（20秒后解除）")
             u:set_invulnerable(20)
         end
         -- 购买城防
-        if jass.GetItemTypeId(item) == 1227896147 then
+        if item:get_id() == 1227896147 then
             if et.player[6]:get_tech(1378889776) <= 29 then
                 et.player[6]:add_tech(1378889776)
                 force.send_message('|cFFFFD700在玩家' .. u:get_owner():get_name() .. '的无私奉献下，正派武林的城防得到加强了')
@@ -62,8 +62,8 @@ local function init()
             end
         end
         -- 购买高级城防
-        if jass.GetItemTypeId(item) == 1227896917 then
-            if udg_boshu >= 18 then
+        if item:get_id() == 1227896917 then
+            if game.variable.wave >= 18 then
                 if et.player[6]:get_tech(1378889778) <= 9 then
                     et.player[6]:add_tech(1378889778)
                     force.send_message('|cFFFFD700在玩家' .. u:get_owner():get_name() .. '的无私奉献下，正派武林的高级城防得到加强了')

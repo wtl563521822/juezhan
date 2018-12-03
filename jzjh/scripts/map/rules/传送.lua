@@ -87,12 +87,17 @@ post[1227899480] = {
     name = '聚贤庄',
     point = et.point(-9000, -14000),
 }
+post[1227897174] = {
+    name = '桃花岛',
+    point = et.point(9631, 1139),
+    extra_message = "|cFFFFCC00“源思英年,巴巴西洛普,雪陆文出；源思英年,巴巴西洛普,雪陆文出！”",
+}
 
 local function init()
     et.game:event '单位-捡起物品' (function(self, u, item)
         local p = u:get_owner()
         local h = p.hero
-        local te = teleport[jass.GetItemTypeId(item)]
+        local te = teleport[item:get_id()]
         if u:is_hero() and p:is_player() and te then
             print(u:get_level())
             if u:get_level() < te.level then
@@ -108,10 +113,14 @@ local function init()
                 end
             end
         end
-        local po = post[jass.GetItemTypeId(item)]
+        local po = post[item:get_id()]
         if u:is_hero() and p:is_player() and po then
             u:set_point(po.point)
+            p:set_camera(po.point)
             p:send_message("|CFF00ff33传送至"..po.name)
+            if po.extra_message then
+                p:send_message(po.extra_message)
+            end
         end
     end)
 end

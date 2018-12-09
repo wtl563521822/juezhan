@@ -4,7 +4,7 @@
 --- DateTime: 2018/10/29 10:23
 ---
 
-require 'war3.id'
+require 'util.id'
 local function get_center_point(tab)
     local x = (tab[1] + tab[3]) / 2
     local y = (tab[2] + tab[4]) / 2
@@ -37,10 +37,19 @@ local id_list = {
     ['1227897154'] = 6,
     ['1227897155'] = 6,
     ['1227897156'] = 6, }
-local function test()
-    print(base.string2id('I0A1'))
-    for k, v in pairs(id_list) do
-        print(base.id2string(k), v)
+
+local function id2string(...)
+    for i, v in ipairs({ ... }) do
+        print(base.id2string(v))
     end
+end
+
+local function test()
+    id2string(1848651844, 1227896922, 1227897136)
+
+    --for k, v in pairs(id_list) do
+    --    print(base.id2string(k), v)
+    --end
+    print(get_center_point { -13568.0, 2272.0, -13440.0, 2400.0})
 end
 test()

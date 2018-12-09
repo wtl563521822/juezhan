@@ -1230,12 +1230,17 @@ function unit.init_unit(handle, p)
     return u
 end
 
-
+--- @type player
+local player_mt = player.__index
 --创建单位(以玩家为参照)
 --	单位id
 --	位置
 --	[朝向]
-function player.__index:create_unit(id, where, face)
+--- @param id number|string
+--- @param where unit|point
+--- @param face number|nil
+--- @return unit
+function player_mt:create_unit(id, where, face)
     if et.lni.unit then
         local data = et.lni.unit[id]
         if data then
@@ -1392,6 +1397,18 @@ function mt:update()
 
 end
 
+--- 增加被接近的监听器
+function mt:add_approach_listener()
+    local j_rect = jass.Rect(self:getX() - 256, self:getY() - 256, self:getX() + 256, self:getY() + 256)
+    local j_region = jass.CreateRegion()
+    jass.RegionAddRect(j_region, j_rect)
+    local j_trg = war3.CreateTrigger(function()
+        local approach_unit = jass.GetEnteringUnit()
+        self:event_notify('单位-被接近', self, approach_unit)
+    end)
+
+    jass.TriggerRegisterEnterRegion(j_trg, j_region, nil)
+end
 
 --初始化
 function unit.init()

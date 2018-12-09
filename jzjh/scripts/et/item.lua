@@ -25,7 +25,7 @@ item.imbeds = nil
 
 item.hole = 0
 
---- 物品类型 枚举值：{herb, weapon, clothes, helmet, shoe, accessory, deputy}
+--- 物品类型 枚举值：{herb, weapon, clothes, helmet, shoe, accessory, deputy, growable}
 item.type = ''
 
 --- @type table 附加属性
@@ -33,6 +33,9 @@ item.bonus_table = nil
 
 --- 四圣属性 枚举值 {dragon, tiger, phoenix, turtle}
 item.special = nil
+
+--- @type table 存储一些自定义数据
+item.data = nil
 
 --- @param item_id 物品id
 --- @param x 创建位置x
@@ -46,7 +49,8 @@ function item:new(item_id, x, y)
     it.y = y or 0
     it.id = item_id
     it.bonus_table = {}
-    self:set_type()
+    it.data = {}
+    it:set_type()
     self[it.handle] = it
     return it
 end
@@ -76,6 +80,7 @@ function item:get(j_item)
     it.handle = j_item
     it.id = jass.GetItemTypeId(j_item)
     it.bonus_table = it.bonus_table or {}
+    it.data = it.data or {}
     self:set_type()
     self[j_item] = it
     return it
@@ -87,8 +92,13 @@ function item:get_id()
 end
 
 --- 设置物品的种类
-function item:set_type()
-    local j_type = jass.GetUnitType(self.handle)
+--- @param tp string
+function item:set_type(tp)
+    if tp then
+        self.type = tp
+        return
+    end
+    local j_type = jass.GetItemType(self.handle)
     if j_type == jass.ITEM_TYPE_ARTIFACT then
         self.type = 'weapon'
     elseif j_type == jass.ITEM_TYPE_PURCHASABLE then
@@ -103,7 +113,7 @@ function item:set_type()
         elseif et.lni.accessory[self.id] then
             self.type = 'accessory'
         end
-    elseif et.lni.herb[self.id] then
+    elseif et.lni.herb and et.lni.herb[self.id] then
         self.type = 'herb'
     end
 end
@@ -156,4 +166,28 @@ end
 --- @return table 物品奖励（附加属性）列表
 function item:get_bonus_table()
     return self.bonus_table
+end
+
+--- 设置物品提示扩展
+--- @param tip string
+function item:set_tip(tip)
+    japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
+end
+
+--- 设置物品提示
+--- @param title string
+function item:set_title(title)
+    japi.EXSetItemDataString(base.string2id(self.id), 4, title)
+end
+
+--- 设置物品图标
+--- @param art string
+function item:set_art(art)
+    japi.EXSetItemDataString(base.string2id(self.id), 1, art)
+    self:fresh_item()
+end
+
+--- 禁止丢弃
+function item:disable_drop()
+    jass.SetItemDroppable(self.item_handle, false)
 end

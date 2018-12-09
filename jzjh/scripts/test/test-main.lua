@@ -9,8 +9,6 @@
 local config = require 'test_frame.jass.config'
 local SCRIPT_PATH = config.SCRIPT_PATH
 
-
-
 package.path = package.path .. ';'..SCRIPT_PATH..'?.lua'
 package.path = package.path .. ';'..SCRIPT_PATH..'scripts\\?.lua'
 package.path = package.path .. ';'..SCRIPT_PATH..'scripts\\test_frame\\?.lua'
@@ -29,5 +27,19 @@ function require(modname)
 end
 
 require('scripts.main')
+
+--- @param rect_list table<number, j_rect>
+function get_rect_center(rect_list)
+    for i, v in ipairs(rect_list) do
+        local x = (jass.GetRectMinX(v) + jass.GetRectMaxX(v)) / 2
+        local y = (jass.GetRectMinY(v) + jass.GetRectMaxY(v)) / 2
+        print(x, ',', y)
+    end
+end
+
+get_rect_center{
+    Rg, Wg, Xg
+
+}
 
 

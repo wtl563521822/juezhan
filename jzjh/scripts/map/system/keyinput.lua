@@ -16,7 +16,7 @@ local function allocate_attr(h, which_attr, s)
     h:get_owner():send_message("|cFFFF0000分配" .. num .. "点" .. which_attr .. "，剩余自由属性点：" .. h['自由属性'])
 end
 
-function KeyInput(p, s)
+local function keyboard_input(p, s)
     log.debug('执行KeyInput函数，参数为：', p, s)
     local h = p.hero
     local hu = et.unit(h.handle)
@@ -157,7 +157,7 @@ function KeyInput(p, s)
         end
     end
     if s == "1" and GetUnitAbilityLevel(udg_hero[i], 1093678935) > 0 and IsUnitAliveBJ(udg_hero[i]) then
-        if RectContainsUnit(lh_r, udg_hero[i]) then
+        if RectContainsUnit(rect_peach_blossom_island, udg_hero[i]) then
             DisplayTextToPlayer(p, 0, 0, "桃花岛不能创建飞行点")
         else
             RemoveUnit(J9[i])
@@ -181,7 +181,7 @@ function KeyInput(p, s)
         end
     end
     if s == "11" and GetUnitAbilityLevel(udg_hero[i], 1093678935) > 1 and IsUnitAliveBJ(udg_hero[i]) then
-        if RectContainsUnit(lh_r, udg_hero[i]) then
+        if RectContainsUnit(rect_peach_blossom_island, udg_hero[i]) then
             DisplayTextToPlayer(p, 0, 0, "桃花岛不能创建飞行点")
         else
             RemoveUnit(qiankun2hao[i])
@@ -205,7 +205,7 @@ function KeyInput(p, s)
         end
     end
     if s == "111" and GetUnitAbilityLevel(udg_hero[i], 1093678935) > 2 and IsUnitAliveBJ(udg_hero[i]) then
-        if RectContainsUnit(lh_r, udg_hero[i]) then
+        if RectContainsUnit(rect_peach_blossom_island, udg_hero[i]) then
             DisplayTextToPlayer(p, 0, 0, "桃花岛不能创建飞行点")
         else
             RemoveUnit(qiankun3hao[i])
@@ -417,7 +417,13 @@ function KeyInput(p, s)
         SetCameraFieldForPlayer(GetTriggerPlayer(), CAMERA_FIELD_TARGET_DISTANCE, 1800.0, 0)
     end
     if s == "fb" then
-        FBdaojishi()
+        local pl = GetTriggerPlayer()
+        DisplayTimedTextToPlayer(pl, 0, 0, 30, "|cFFFF00331号副本重置倒计时：|cFF33FFFF" .. (I2S(R2I(TimerGetRemaining(Hd[1]))) or "") .. "秒")
+        DisplayTimedTextToPlayer(pl, 0, 0, 30, "|cFFFF00332号副本重置倒计时：|cFF33FFFF" .. (I2S(R2I(TimerGetRemaining(Hd[2]))) or "") .. "秒")
+        DisplayTimedTextToPlayer(pl, 0, 0, 30, "|cFFFF00333号副本重置倒计时：|cFF33FFFF" .. (I2S(R2I(TimerGetRemaining(Hd[3]))) or "") .. "秒")
+        DisplayTimedTextToPlayer(pl, 0, 0, 30, "|cFFFF00334号副本重置倒计时：|cFF33FFFF" .. (I2S(R2I(TimerGetRemaining(Hd[4]))) or "") .. "秒")
+        DisplayTimedTextToPlayer(pl, 0, 0, 30, "|cFFFF00335号副本重置倒计时：|cFF33FFFF" .. (I2S(R2I(TimerGetRemaining(Hd[5]))) or "") .. "秒")
+        DisplayTimedTextToPlayer(pl, 0, 0, 30, "|cFFFF00336号副本重置倒计时：|cFF33FFFF" .. (I2S(R2I(TimerGetRemaining(Hd[6]))) or "") .. "秒")
     end
     if s == "bl" then
         BanLvShuXing()
@@ -462,6 +468,12 @@ function KeyInput(p, s)
     end
 end
 
-et.game:event '玩家-聊天'(function(self, p, str)
-    KeyInput(p, str)
-end)
+local function init()
+    log.info('加载键盘输入系统')
+    et.game:event '玩家-聊天'(function(self, p, str)
+        keyboard_input(p, str)
+    end)
+end
+init()
+
+

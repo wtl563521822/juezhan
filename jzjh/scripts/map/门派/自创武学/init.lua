@@ -1,3 +1,130 @@
+--Generated method caller for ZiZhiWuGong.create
+function sc__ZiZhiWuGong_create(xishu, range, texiao, dapeishu, scrate)
+	f__arg_integer1 = xishu
+	f__arg_integer2 = range
+	f__arg_integer3 = texiao
+	f__arg_integer4 = dapeishu
+	f__arg_integer5 = scrate
+	TriggerEvaluate(st__ZiZhiWuGong_create)
+	return f__result_integer
+end
+
+--Generated method caller for ZiZhiWuGong.onDestroy
+function sc__ZiZhiWuGong_onDestroy(this)
+	s__ZiZhiWuGong_xishu[this] = 0
+	s__ZiZhiWuGong_range[this] = 0
+	s__ZiZhiWuGong_texiao[this] = 0
+	s__ZiZhiWuGong_dapeishu[this] = 0
+	s__ZiZhiWuGong_scrate[this] = 0
+end
+
+--Generated allocator of ZiZhiWuGong
+function s__ZiZhiWuGong__allocate()
+	local this = si__ZiZhiWuGong_F
+	if this ~= 0 then
+		si__ZiZhiWuGong_F = si__ZiZhiWuGong_V[this]
+	else
+		si__ZiZhiWuGong_I = si__ZiZhiWuGong_I + 1
+		this = si__ZiZhiWuGong_I
+	end
+	if this > 8190 then
+		return 0
+	end
+
+	s__ZiZhiWuGong_name[this] = "自创武功"
+	si__ZiZhiWuGong_V[this] = -1
+	return this
+end
+
+--Generated destructor of ZiZhiWuGong
+function sc__ZiZhiWuGong_deallocate(this)
+	if this == nil then
+		return
+	elseif si__ZiZhiWuGong_V[this] ~= -1 then
+		return
+	end
+	f__arg_this = this
+	TriggerEvaluate(st__ZiZhiWuGong_onDestroy)
+	si__ZiZhiWuGong_V[this] = si__ZiZhiWuGong_F
+	si__ZiZhiWuGong_F = this
+end
+
+--Generated method caller for DaPei.onDestroy
+function sc__DaPei_onDestroy(this)
+	s__DaPei_wugongid[this] = 0
+	s__DaPei_dapeixiaoguo[this] = 0
+	s__DaPei_shxishu[this] = 0
+end
+
+--Generated method caller for DaPei.XiaoGuoShuoMing
+function sc__DaPei_XiaoGuoShuoMing(this)
+	local s = ""
+	s = (s or "") .. "+" .. (GetAbilityName(s__DaPei_wugongid[this]) or "") .. "："
+	if s__DaPei_dapeixiaoguo[this] ~= 2 then
+		s = (s or "") .. "伤害+" .. (I2S(R2I(s__DaPei_r[this] * 100)) or "") .. "%"
+	else
+		if R2I(s__DaPei_r[this]) == 1 then
+			s = (s or "") .. "几率造成内伤"
+		elseif R2I(s__DaPei_r[this]) == 2 then
+			s = (s or "") .. "几率造成走火入魔"
+		elseif R2I(s__DaPei_r[this]) == 3 then
+			s = (s or "") .. "几率造成流血"
+		elseif R2I(s__DaPei_r[this]) == 4 then
+			s = (s or "") .. "几率造成混乱"
+		elseif R2I(s__DaPei_r[this]) == 5 then
+			s = (s or "") .. "几率造成昏迷"
+		elseif R2I(s__DaPei_r[this]) == 6 then
+			s = (s or "") .. "几率造成重伤"
+		elseif R2I(s__DaPei_r[this]) == 7 then
+			s = (s or "") .. "几率造成血流不止"
+		elseif R2I(s__DaPei_r[this]) == 8 then
+			s = (s or "") .. "几率造成麻痹"
+		elseif R2I(s__DaPei_r[this]) == 9 then
+			s = (s or "") .. "几率造成破防"
+		elseif R2I(s__DaPei_r[this]) == 10 then
+			s = (s or "") .. "几率造成神经错乱"
+		elseif R2I(s__DaPei_r[this]) == 11 then
+			s = (s or "") .. "几率造成封穴"
+		elseif R2I(s__DaPei_r[this]) == 12 then
+			s = (s or "") .. "几率造成穴位全封"
+		elseif R2I(s__DaPei_r[this]) == 13 then
+			s = (s or "") .. "几率造成中毒"
+		end
+	end
+	return s
+end
+
+--Generated allocator of DaPei
+function s__DaPei__allocate()
+	local this = si__DaPei_F
+	if this ~= 0 then
+		si__DaPei_F = si__DaPei_V[this]
+	else
+		si__DaPei_I = si__DaPei_I + 1
+		this = si__DaPei_I
+	end
+	if this > 8190 then
+		return 0
+	end
+
+	s__DaPei_shxishu[this] = 0.0
+	si__DaPei_V[this] = -1
+	return this
+end
+
+--Generated destructor of DaPei
+function sc__DaPei_deallocate(this)
+	if this == nil then
+		return
+	elseif si__DaPei_V[this] ~= -1 then
+		return
+	end
+	f__arg_this = this
+	TriggerEvaluate(st__DaPei_onDestroy)
+	si__DaPei_V[this] = si__DaPei_F
+	si__DaPei_F = this
+end
+
 function s__DaPei_create(wugongid, dapeixiaoguo)
 	local dpi
 	dpi = s__DaPei__allocate()
@@ -38,7 +165,7 @@ function s__DaPei_XiaoGuo(this, u, uc)
 		s__DaPei_shxishu[this] = s__DaPei_r[this]
 	else
 		if GetRandomReal(1, 100) <= 13 then
-			WanBuff(u, uc, R2I(s__DaPei_r[this]))
+			general_buff(u, uc, R2I(s__DaPei_r[this]))
 		end
 	end
 end
@@ -206,12 +333,12 @@ function AllocateWuXueDian()
 				s__ZiZhiWuGong_dapeishu[zizhiwugong[i]] = s__ZiZhiWuGong_dapeishu[zizhiwugong[i]] + 1
 				DisplayTextToPlayer(p, 0, 0, "|cFFFFCC00游坦之：|r |cFF99FFCC分配一点至武学搭配|r\n")
 				if GetRandomInt(1, 10) <= 7 then
-					dapei[i * 20 + s__ZiZhiWuGong_dapeishu[zizhiwugong[i]]] = s__DaPei_create(kongfu[GetRandomInt(1, 18)].abilityid, GetRandomInt(1, 2))
+					dapei[i * 20 + s__ZiZhiWuGong_dapeishu[zizhiwugong[i]]] = s__DaPei_create(kungfu[GetRandomInt(1, 18)].abilityid, GetRandomInt(1, 2))
 				else
 					if GetRandomInt(1, 3) <= 2 then
-						dapei[i * 20 + s__ZiZhiWuGong_dapeishu[zizhiwugong[i]]] = s__DaPei_create(kongfu[GetRandomInt(19, 28)].abilityid, 3)
+						dapei[i * 20 + s__ZiZhiWuGong_dapeishu[zizhiwugong[i]]] = s__DaPei_create(kungfu[GetRandomInt(19, 28)].abilityid, 3)
 					else
-						dapei[i * 20 + s__ZiZhiWuGong_dapeishu[zizhiwugong[i]]] = s__DaPei_create(kongfu[GetRandomInt(29, 41)].abilityid, 4)
+						dapei[i * 20 + s__ZiZhiWuGong_dapeishu[zizhiwugong[i]]] = s__DaPei_create(kungfu[GetRandomInt(29, 41)].abilityid, 4)
 					end
 				end
 			end

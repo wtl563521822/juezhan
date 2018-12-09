@@ -153,7 +153,8 @@ local function check_use_tuotai_pellet(u, item)
         end
     end
 end
-local function init_herbs()
+local function init()
+    log.info('加载炼丹系统')
     YaoCao = { 1227896646, --车前草
                1227896647, --过路黄
                1227896645, --金钱草
@@ -167,11 +168,7 @@ local function init_herbs()
                1227896644, --五加皮
                1227896648, --紫花兰
     }
-    et.lni_loader('pellet')
-    et.extend_lni(et.lni.pellet)
 
-    et.lni_loader('herb')
-    et.extend_lni(et.lni.herb)
 
     et.game:event '单位-使用物品'(function(self, u, item)
         local p = u:get_owner()
@@ -317,7 +314,7 @@ local function init_herbs()
                             u:add_item(1227896625)
                         end
                         h:add_ability(v.ability_id)
-                        h['武功'][v.ability_id] = et.kongfu.create(v.ability_id)
+                        h['武功'][v.ability_id] = et.kungfu.create(v.ability_id)
                         h['武功'][v.ability_id]['经验'] = h['遗忘武功'][v.ability_id]['经验']
                         h['武功'][v.ability_id]['重数'] = h['遗忘武功'][v.ability_id]['重数']
                         force.send_message("|CFFFF0033传闻" .. u:get_owner():get_name() .. "向" .. target:get_owner():get_name() .. "虚心求教，成功的学会了" .. jass.GetObjectName(v.ability_id))
@@ -379,5 +376,5 @@ local function init_herbs()
     end)
 
 end
-init_herbs() --初始化草药
+init() --初始化草药
 

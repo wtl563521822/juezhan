@@ -23,4 +23,17 @@ function bag:remove(element)
     self[element] = (count and count > 1) and count - 1 or nil
 end
 
+--- 获取某个元素的数量
+--- @return number
+function bag:count(element)
+    return self[element] or 0
+end
+
+--- 设置某个元素的数量
+--- @param element any
+--- @param count number
+function bag:set_count(element, count)
+    self[element] = count > 0 and count or nil
+end
+
 return bag

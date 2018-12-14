@@ -7,7 +7,6 @@
 local function init()
 
     et.game:event '单位-使用物品'(function(self, u, item)
-        print(u:is_hero(), u:get_owner():is_player(), et.lni.partner[item:get_id()])
         if u:is_hero() and u:get_owner():is_player() and et.lni.partner[item:get_id()] then
             local h = u:get_owner().hero
             if h['伴侣'] then
@@ -24,7 +23,8 @@ local function init()
             PlaySoundOnUnitBJ(Fh, 100, u)
             local new_partner_table = et.lni.partner[item:get_id()]
             local new_parter = u:get_owner():create_unit(new_partner_table.unit_id, u:get_point())
-            zw(new_parter.handle, u, 1.0, 250.0, 1000.0, 1500.0, 75)
+            -- FIXME 伴侣传送
+            --zw(new_parter.handle, u, 1.0, 250.0, 1000.0, 1500.0, 75)
             p:send_message("|cFFFFCC00恭喜你与" .. new_partner_table.name .. "结成伴侣")
             h['伴侣'] = new_parter
             h['悟性'] = h['悟性'] + new_partner_table['悟性']
